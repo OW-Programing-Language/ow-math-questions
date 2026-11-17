@@ -18,6 +18,39 @@ main:
 
 Supported operations: `+`, `-`, `*`, `/`, `%`, `^` and `pow` (alias). Builtins such as `rand`, `mod` and `pow` belong to the OW runtime, not this library.
 
+## Use as an OW project dependency
+
+With an OW compiler that supports `dependencies.yml`, you can add this
+library once to your project's root manifest:
+
+```yaml
+format: 1
+repositories:
+  - id: github
+    url: https://github.com
+dependencies:
+  - name: math
+    repository: github
+    path: OW-Programing-Language/ow-math-questions
+    version: c22d01cfee6be18d96d4c55b95b7e79892bca9f6
+```
+
+In an OW source file, import the library by its declared alias:
+
+```ow
+import "@math/src/MathQuestions.ow"
+
+main:
+  set generator: new MathQuestions()
+  set q: generator.generate_any(["+", "-", "*", "/"], 1, 10)
+  print: q.prompt
+```
+
+Run `ow deps install` (or simply `ow run main.ow` for auto-resolution).
+The lockfile `dependencies.lock.yml` pins the exact Git commit. See
+[OW's dependency documentation](https://github.com/OW-Programing-Language/ow-lang/blob/feat/dependencies-yml/docs/dependencies.md)
+for all commands and options.
+
 ## Run
 
 ```sh
