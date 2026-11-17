@@ -1,0 +1,26 @@
+# Run: ow run examples/quiz_demo.ow
+import "../src/MathQuestions.ow"
+
+main:
+  set questions: new MathQuestions()
+  set allowed: ["+", "-", "*", "/", "^", "%"]
+  set question: questions.generate_any(allowed, 1, 9)
+  set options: questions.choices(question, 4)
+
+  print: question.prompt
+  set i int: 0
+  while: i < len(options)
+    print: str(i + 1) + ") " + str(options[i])
+    set i: i + 1
+
+  set selected: int(input("Select 1-4: "))
+  if: selected < 1
+    print: "Invalid choice"
+  else:
+    if: selected > 4
+      print: "Invalid choice"
+    else:
+      if: questions.is_correct(question, options[selected - 1])
+        print: "Correct!"
+      else:
+        print: "Try again. Correct answer: " + question.answer
