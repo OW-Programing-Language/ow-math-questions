@@ -1,0 +1,51 @@
+# Run: ow run tests/math_questions_test.ow
+import "../src/MathQuestions.ow"
+
+main:
+  set q: new MathQuestions()
+
+  call: assert(q.random_int(5, 5) == 5, "single-value RNG range")
+  call: assert(q.calculate("+", 8, 3) == 11, "addition")
+  call: assert(q.calculate("-", 8, 3) == 5, "subtraction")
+  call: assert(q.calculate("*", 8, 3) == 24, "multiplication")
+  call: assert(q.calculate("/", 12, 3) == 4, "division")
+  call: assert(q.calculate("%", 10, 3) == 1, "modulo")
+  call: assert(q.calculate("^", 2, 5) == 32, "power")
+  call: assert(q.calculate("pow", 3, 3) == 27, "power alias")
+
+  set chosen: q.from_operands("+", 4, 7)
+  call: assert(chosen.operation == "+", "operation field")
+  call: assert(chosen.left == 4, "left field")
+  call: assert(chosen.right == 7, "right field")
+  call: assert(chosen.answer == 11, "answer field")
+  call: assert(chosen.prompt == "4 + 7 = ?", "prompt field")
+  call: assert(q.is_correct(chosen, 11), "correct checker")
+  call: assert(q.is_correct(chosen, 9) == false, "incorrect checker")
+
+  set options: q.choices(chosen, 4)
+  call: assert(len(options) == 4, "choice count")
+  set correct_count int: 0
+  set i int: 0
+  while: i < len(options)
+    if: options[i] == chosen.answer
+      set correct_count: correct_count + 1
+    set j int: i + 1
+    while: j < len(options)
+      call: assert(options[i] != options[j], "answers must be unique")
+      set j: j + 1
+    set i: i + 1
+  call: assert(correct_count == 1, "exactly one correct choice")
+
+  set ops: ["+", "-", "*", "/", "%", "^"]
+  set iteration int: 0
+  while: iteration < 100
+    set question: q.generate_any(ops, 1, 9)
+    call: assert(q.calculate(question.operation, question.left, question.right) == question.answer, "generated answer")
+    if: question.operation == "/"
+      call: assert(question.right != 0, "nonzero divisor")
+      call: assert(mod(question.left, question.right) == 0, "exact division")
+    if: question.operation == "-"
+      call: assert(question.answer >= 0, "nonnegative subtraction")
+    set iteration: iteration + 1
+
+  print: "PASS ow-math-questions"
