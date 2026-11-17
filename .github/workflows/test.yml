@@ -1,0 +1,29 @@
+name: OW Math Questions
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: OW-Programing-Language/ow-lang
+          path: ow-lang
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+          cache-dependency-path: ow-lang/pom.xml
+      - name: Build the OW interpreter
+        run: mvn -B -f ow-lang/pom.xml -DskipTests package
+      - name: Validate and execute the library tests
+        run: |
+          java -jar ow-lang/target/OwIDE.jar check tests/math_questions_test.ow
+          java -jar ow-lang/target/OwIDE.jar run tests/math_questions_test.ow
+      - name: Run example adapter
+        run: java -jar ow-lang/target/OwIDE.jar run examples/math_skill_adapter.ow
