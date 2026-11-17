@@ -48,7 +48,7 @@ main:
 
 Run `ow deps install` (or simply `ow run main.ow` for auto-resolution).
 The lockfile `dependencies.lock.yml` pins the exact Git commit. See
-[OW's dependency documentation](https://github.com/OW-Programing-Language/ow-lang/blob/feat/dependencies-yml/docs/dependencies.md)
+[OW's dependency documentation](https://github.com/OW-Programing-Language/ow-lang/blob/main/docs/dependencies.md)
 for all commands and options.
 
 ## Run
