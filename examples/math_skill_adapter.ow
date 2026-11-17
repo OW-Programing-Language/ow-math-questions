@@ -1,0 +1,27 @@
+# Difficulty policy belongs to the game, not the reusable library.
+import "../src/MathQuestions.ow"
+
+fn allowed_for_difficulty(difficulty):
+  if: difficulty == "easy"
+    return: ["+", "-"]
+  if: difficulty == "medium"
+    return: ["+", "-", "*", "/"]
+  return: ["+", "-", "*", "/", "%", "^"]
+
+fn range_for_difficulty(difficulty):
+  if: difficulty == "easy"
+    return: 10
+  if: difficulty == "medium"
+    return: 20
+  return: 50
+
+main:
+  set generator: new MathQuestions()
+  set difficulty: "medium"
+  set ops: allowed_for_difficulty(difficulty)
+  set upper: range_for_difficulty(difficulty)
+  set question: generator.generate_any(ops, 1, upper)
+
+  print: "Difficulty: " + difficulty
+  print: question.prompt
+  print: "Answer: " + question.answer
