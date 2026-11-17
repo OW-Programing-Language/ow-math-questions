@@ -1,0 +1,101 @@
+# OW Math Questions — reusable arithmetic question generator.
+# Game-specific difficulty, scoring, and UI belong to the application.
+
+class MathQuestions:
+  field private version
+
+  fn new():
+    set this.version: "0.1.0"
+
+  fn random_int(low, high):
+    call: assert(low <= high, "random_int requires low <= high")
+    return: low + rand(high - low + 1)
+
+  fn calculate(op, a, b):
+    switch: op
+      case "+":
+        return: a + b
+      case "-":
+        return: a - b
+      case "*":
+        return: a * b
+      case "/":
+        call: assert(b != 0, "division by zero")
+        return: a / b
+      case "%":
+        call: assert(b != 0, "modulo by zero")
+        return: mod(a, b)
+      case "^", "pow":
+        call: assert(b >= 0, "negative integer exponent")
+        return: pow(a, b)
+      default:
+        call: assert(false, "unsupported math operation: " + op)
+        return: 0
+
+  fn from_operands(op, a, b):
+    set answer: this.calculate(op, a, b)
+    set symbol: op
+    if: op == "pow"
+      set symbol: "^"
+    return: {operation: symbol, left: a, right: b, answer: answer, prompt: str(a) + " " + symbol + " " + str(b) + " = ?"}
+
+  fn generate(op, low, high):
+    call: assert(low >= 0, "generate expects nonnegative operand range")
+    call: assert(high >= low, "generate expects low <= high")
+    set a: this.random_int(low, high)
+    set b: this.random_int(low, high)
+
+    if: op == "-"
+      if: a < b
+        set tmp: a
+        set a: b
+        set b: tmp
+
+    if: op == "/"
+      call: assert(high >= 1, "division needs a nonzero divisor")
+      set b: this.random_int(max(1, low), high)
+      set quotient: this.random_int(low, high)
+      set a: b * quotient
+
+    if: op == "%"
+      call: assert(high >= 1, "modulo needs a nonzero divisor")
+      set b: this.random_int(max(1, low), high)
+
+    if: op == "^"
+      call: assert(low <= 12, "power base range must include <=12")
+      set a: this.random_int(low, min(high, 12))
+      set b: this.random_int(0, 3)
+
+    if: op == "pow"
+      call: assert(low <= 12, "power base range must include <=12")
+      set a: this.random_int(low, min(high, 12))
+      set b: this.random_int(0, 3)
+
+    return: this.from_operands(op, a, b)
+
+  fn generate_any(operations, low, high):
+    call: assert(len(operations) > 0, "operations must not be empty")
+    set chosen: operations[rand(len(operations))]
+    return: this.generate(chosen, low, high)
+
+  fn choices(question, count):
+    call: assert(count >= 2, "at least two answer options required")
+    call: assert(count <= 6, "at most six answer options supported")
+    set result: array(count, 0)
+    set correct_index: rand(count)
+    set delta: 1
+    set i: 0
+    while: i < count
+      if: i == correct_index
+        set result[i]: question.answer
+      else:
+        if: mod(delta, 2) == 0
+          set result[i]: question.answer - delta
+        else:
+          set result[i]: question.answer + delta
+        set delta: delta + 1
+      set i: i + 1
+    return: result
+
+  fn is_correct(question, proposed_answer):
+    return: question.answer == proposed_answer
